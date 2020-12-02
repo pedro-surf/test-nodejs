@@ -5,6 +5,8 @@ import connectDB from "../config/database";
 import auth from "./routes/api/auth";
 import user from "./routes/api/user";
 
+import { getIcon } from "./utils";
+
 const app = express();
 
 // Connect to MongoDB
@@ -16,10 +18,29 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // @route   GET /
-// @desc    Test Base API
+// @desc    Test API
 // @access  Public
 app.get("/", (_req: Request, res: Response) => {
-  res.send("API Running");
+  res.json({ msg: "Hello" });
+});
+
+// @route   GET /
+// @desc    Test Base64 API
+// @access  Public
+app.get("/api/id/:w", (req: Request, res: Response) => {
+  try {
+    var img = getIcon(req.params.w); // example function that returns an arrayBuffer
+    var data = Buffer.from(img).toString("base64");
+
+    res.writeHead(200, {
+      "Content-Type": "image/png",
+      "Content-Length": data.length,
+    });
+    res.json({ data });
+  } catch (error) {
+    console.log(error);
+    res.json({ error });
+  }
 });
 
 app.use("/api/auth", auth);
